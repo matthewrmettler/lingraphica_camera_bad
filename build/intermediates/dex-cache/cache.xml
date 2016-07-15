@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="/Users/lcadev/Documents/Studio/Camera_sample_bad/Application/build/intermediates/incremental-classes/debug/instant-run-bootstrap.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="34c010ff8c84336ff930ffb4b66110cfa80d91b5">
+        <dex dex="/Users/lcadev/Documents/Studio/Camera_sample_bad/Application/build/intermediates/transforms/dex/debug/folders/1000/10/instant-run-bootstrap_22f53f9c750c1b341b67171a2a9616bdc7d27bb9/classes.dex" />
+    </item>
+
+</items>
