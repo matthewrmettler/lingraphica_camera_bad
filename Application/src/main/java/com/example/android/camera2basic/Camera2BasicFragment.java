@@ -76,7 +76,7 @@ public class Camera2BasicFragment extends Fragment
 
     //TODO: Having issues with autofocus with my camera, and therefore it's not capturing images.
     //For now, we're going to manually turn it off (and accept blurry, out of focus images).
-    private static final boolean AUTOFOCUS_ENABLED = false;
+    private static boolean AUTOFOCUS_ENABLED = false;
     /**
      * Conversion from screen rotation to JPEG orientation.
      */
@@ -439,6 +439,8 @@ public class Camera2BasicFragment extends Fragment
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mFile = new File(getActivity().getExternalFilesDir(null), "pic.jpg");
+        //Set up autofocus
+        AUTOFOCUS_ENABLED = getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_AUTOFOCUS);
     }
 
     @Override
@@ -848,11 +850,16 @@ public class Camera2BasicFragment extends Fragment
                 public void onCaptureCompleted(@NonNull CameraCaptureSession session,
                                                @NonNull CaptureRequest request,
                                                @NonNull TotalCaptureResult result) {
+                    //TODO: It's saved to 'pic.jpg'; We should use timestamps.
                     showToast("Saved: " + mFile);
                     Log.d(TAG, mFile.toString());
                     unlockFocus();
                 }
             };
+            //Set a new path file based on the current timestamp.
+            Long tsLong = System.currentTimeMillis()/1000;
+            String ts = tsLong.toString()+ ".jpg";
+            mFile = new File(getActivity().getExternalFilesDir(null), ts);
 
             mCaptureSession.stopRepeating();
             mCaptureSession.capture(captureBuilder.build(), CaptureCallback, null);
