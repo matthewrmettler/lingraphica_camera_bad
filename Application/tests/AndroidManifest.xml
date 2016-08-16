@@ -20,6 +20,7 @@
           android:versionCode="1"
           android:versionName="1.0">
 
+    <uses-permission android:name="android.permission.CAMERA" />
     <!-- Min/target SDK versions (<uses-sdk>) managed by build.gradle -->
 
     <!-- We add an application tag here just so that we can indicate that
@@ -32,6 +33,7 @@
     <!--
     Specifies the instrumentation test runner used to run the tests.
     -->
+    <!-- TODO: Android Studio linter throwing an error for targetPackage, but it compiles. Possibly false alert? -->
     <instrumentation
             android:name="android.test.InstrumentationTestRunner"
             android:targetPackage="com.example.android.camera2basic"
