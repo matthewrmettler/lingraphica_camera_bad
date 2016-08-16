@@ -44,6 +44,7 @@ import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.annotation.NonNull;
@@ -74,8 +75,6 @@ import java.util.concurrent.TimeUnit;
 public class Camera2BasicFragment extends Fragment
         implements View.OnClickListener, FragmentCompat.OnRequestPermissionsResultCallback {
 
-    //TODO: Having issues with autofocus with my camera, and therefore it's not capturing images.
-    //For now, we're going to manually turn it off (and accept blurry, out of focus images).
     private static boolean AUTOFOCUS_ENABLED = false;
     /**
      * Conversion from screen rotation to JPEG orientation.
@@ -271,7 +270,7 @@ public class Camera2BasicFragment extends Fragment
     /**
      * A {@link Semaphore} to prevent the app from exiting before closing the camera.
      */
-    private Semaphore mCameraOpenCloseLock = new Semaphore(1);
+    private final Semaphore mCameraOpenCloseLock = new Semaphore(1);
 
     /**
      * Whether the current camera device supports Flash or not.
@@ -286,7 +285,7 @@ public class Camera2BasicFragment extends Fragment
     /**
      * A {@link CameraCaptureSession.CaptureCallback} that handles events related to JPEG capture.
      */
-    private CameraCaptureSession.CaptureCallback mCaptureCallback
+    private final CameraCaptureSession.CaptureCallback mCaptureCallback
             = new CameraCaptureSession.CaptureCallback() {
 
         private void process(CaptureResult result) {
@@ -297,7 +296,7 @@ public class Camera2BasicFragment extends Fragment
                 }
                 case STATE_WAITING_LOCK: {
                     Integer afState = result.get(CaptureResult.CONTROL_AF_STATE);
-                    //Added support for when autofocus is off
+                    //If camera doesn't support autofocus, just take a picture
                     if (afState == null || !AUTOFOCUS_ENABLED) {
                         captureStillPicture();
                     } else if (CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED == afState ||
@@ -363,7 +362,7 @@ public class Camera2BasicFragment extends Fragment
             activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(activity, text, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, text, Toast.LENGTH_LONG).show();
                 }
             });
         }
@@ -494,6 +493,7 @@ public class Camera2BasicFragment extends Fragment
      * @param width  The width of available size for camera preview
      * @param height The height of available size for camera preview
      */
+    @SuppressWarnings("SuspiciousNameCombination")
     private void setUpCameraOutputs(int width, int height) {
         Activity activity = getActivity();
         CameraManager manager = (CameraManager) activity.getSystemService(Context.CAMERA_SERVICE);
@@ -850,22 +850,41 @@ public class Camera2BasicFragment extends Fragment
                 public void onCaptureCompleted(@NonNull CameraCaptureSession session,
                                                @NonNull CaptureRequest request,
                                                @NonNull TotalCaptureResult result) {
-                    //TODO: It's saved to 'pic.jpg'; We should use timestamps.
                     showToast("Saved: " + mFile);
                     Log.d(TAG, mFile.toString());
                     unlockFocus();
                 }
             };
+
             //Set a new path file based on the current timestamp.
-            Long tsLong = System.currentTimeMillis()/1000;
+            //We keep in milliseconds in case we take multiple photos within a one second window.
+            Long tsLong = System.currentTimeMillis();
             String ts = tsLong.toString()+ ".jpg";
-            mFile = new File(getActivity().getExternalFilesDir(null), ts);
+            mFile = getNewFile(ts);
 
             mCaptureSession.stopRepeating();
             mCaptureSession.capture(captureBuilder.build(), CaptureCallback, null);
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Creates a new File to be used by the picture taken, in the DCIM/bad_camera directory.
+     * @param timestamp Time since epoch, used for the filename in order to distinguish pictures.
+     * @return A File object where the FileOutputStream can write the .jpeg to.
+     */
+    public File getNewFile(String timestamp) {
+        // Get the directory for the user's public pictures directory.
+        File root_dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
+        File camera_dir = new File(root_dir.getAbsolutePath() + "/bad_camera");
+        File picFile = new File(camera_dir, timestamp);
+
+        if (!picFile.mkdirs()) {
+            Log.e(TAG, "Directory not created");
+        }
+
+        return picFile;
     }
 
     /**
@@ -977,7 +996,7 @@ public class Camera2BasicFragment extends Fragment
     /**
      * Compares two {@code Size}s based on their areas.
      */
-    static class CompareSizesByArea implements Comparator<Size> {
+    private static class CompareSizesByArea implements Comparator<Size> {
 
         @Override
         public int compare(Size lhs, Size rhs) {
