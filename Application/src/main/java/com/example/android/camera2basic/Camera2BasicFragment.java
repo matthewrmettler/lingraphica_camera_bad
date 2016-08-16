@@ -72,6 +72,8 @@ import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+import static com.example.android.camera2basic.Helper.createNewFile;
+
 public class Camera2BasicFragment extends Fragment
         implements View.OnClickListener, FragmentCompat.OnRequestPermissionsResultCallback {
 
@@ -859,32 +861,16 @@ public class Camera2BasicFragment extends Fragment
             //Set a new path file based on the current timestamp.
             //We keep in milliseconds in case we take multiple photos within a one second window.
             Long tsLong = System.currentTimeMillis();
-            String ts = tsLong.toString()+ ".jpg";
-            mFile = getNewFile(ts);
+            String ts = tsLong.toString() + ".jpg";
+            //Having  ENOENT errors with the helper classes, doing this for now
+            mFile = new File(getActivity().getExternalFilesDir(null), ts);
 
             mCaptureSession.stopRepeating();
             mCaptureSession.capture(captureBuilder.build(), CaptureCallback, null);
+            Log.i(TAG, "mFile exists: " + mFile.exists());
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
-    }
-
-    /**
-     * Creates a new File to be used by the picture taken, in the DCIM/bad_camera directory.
-     * @param timestamp Time since epoch, used for the filename in order to distinguish pictures.
-     * @return A File object where the FileOutputStream can write the .jpeg to.
-     */
-    public File getNewFile(String timestamp) {
-        // Get the directory for the user's public pictures directory.
-        File root_dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
-        File camera_dir = new File(root_dir.getAbsolutePath() + "/bad_camera");
-        File picFile = new File(camera_dir, timestamp);
-
-        if (!picFile.mkdirs()) {
-            Log.e(TAG, "Directory not created");
-        }
-
-        return picFile;
     }
 
     /**
