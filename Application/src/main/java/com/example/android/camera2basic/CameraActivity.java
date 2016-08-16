@@ -19,11 +19,15 @@ package com.example.android.camera2basic;
 import android.app.Activity;
 import android.os.Bundle;
 
+import com.joanzapata.iconify.Iconify;
+import com.joanzapata.iconify.fonts.FontAwesomeModule;
+
 public class CameraActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_camera);
         if (null == savedInstanceState) {
             getFragmentManager().beginTransaction()

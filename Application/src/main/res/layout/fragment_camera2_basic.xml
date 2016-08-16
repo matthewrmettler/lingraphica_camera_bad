@@ -51,4 +51,20 @@
 
     </FrameLayout>
 
+    <com.joanzapata.iconify.widget.IconTextView
+        android:id="@+id/flash_button"
+        android:text="Z"
+        android:shadowColor="#000044"
+        android:shadowDx="7"
+        android:shadowDy="7"
+        android:shadowRadius="3"
+        android:textSize="70sp"
+        android:textColor="#FFFFFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="30dp" />
+
 </RelativeLayout>

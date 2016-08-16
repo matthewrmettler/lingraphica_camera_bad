@@ -22,6 +22,10 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.0.0'
     compile 'com.android.support.test.espresso:espresso-core:2.2.2'
     compile 'com.android.support.test:runner:0.5'
+    //Iconify: For Font Awesome icons (Apache v2 License)
+    compile 'com.joanzapata.iconify:android-iconify-fontawesome:2.2.2' // (v4.5)
+    compile 'com.joanzapata.iconify:android-iconify-material:2.2.1' // (v2.0.0)
+    compile 'com.joanzapata.iconify:android-iconify-material-community:2.2.1' // (v1.4.57)
 }
 
 // The sample build uses multiple directories to

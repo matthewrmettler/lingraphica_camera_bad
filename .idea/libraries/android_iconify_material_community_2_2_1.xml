@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="android-iconify-material-community-2.2.1">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/Application/build/intermediates/exploded-aar/com.joanzapata.iconify/android-iconify-material-community/2.2.1/jars/classes.jar!/" />
+      <root url="file://$PROJECT_DIR$/Application/build/intermediates/exploded-aar/com.joanzapata.iconify/android-iconify-material-community/2.2.1/res" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.joanzapata.iconify/android-iconify-material-community/2.2.1/2c35ed2442747cf2d16dac6c3ab493d6941f401d/android-iconify-material-community-2.2.1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

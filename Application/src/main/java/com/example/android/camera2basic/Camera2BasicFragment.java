@@ -60,6 +60,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.joanzapata.iconify.Iconify;
+import com.joanzapata.iconify.fonts.FontAwesomeModule;
+import com.joanzapata.iconify.fonts.MaterialCommunityModule;
+import com.joanzapata.iconify.fonts.MaterialModule;
+import com.joanzapata.iconify.widget.IconTextView;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -431,8 +437,11 @@ public class Camera2BasicFragment extends Fragment
 
     @Override
     public void onViewCreated(final View view, Bundle savedInstanceState) {
+        iconifySetup(view);
+
         view.findViewById(R.id.picture).setOnClickListener(this);
         view.findViewById(R.id.info).setOnClickListener(this);
+
         mTextureView = (AutoFitTextureView) view.findViewById(R.id.texture);
     }
 
@@ -1055,5 +1064,20 @@ public class Camera2BasicFragment extends Fragment
                     .create();
         }
     }
+
+    /**
+     * Set up the library Iconify.
+     * @param view The view needed to setup the IconTextView.
+     */
+    private void iconifySetup(View view) {
+        Iconify.with(new FontAwesomeModule());
+        IconTextView itv_flash = (IconTextView) view.findViewById(R.id.flash_button);
+        //Setting value via XML does not work; so we hardcode it
+        //See: https://github.com/JoanZapata/android-iconify/issues/137
+
+        itv_flash.setText("{fa-flash}");
+        itv_flash.setOnClickListener(this);
+    }
+
 
 }
