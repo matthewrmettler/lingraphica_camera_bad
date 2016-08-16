@@ -74,6 +74,9 @@ import java.util.concurrent.TimeUnit;
 public class Camera2BasicFragment extends Fragment
         implements View.OnClickListener, FragmentCompat.OnRequestPermissionsResultCallback {
 
+    //TODO: Having issues with autofocus with my camera, and therefore it's not capturing images.
+    //For now, we're going to manually turn it off (and accept blurry, out of focus images).
+    private static final boolean AUTOFOCUS_ENABLED = false;
     /**
      * Conversion from screen rotation to JPEG orientation.
      */
@@ -294,7 +297,8 @@ public class Camera2BasicFragment extends Fragment
                 }
                 case STATE_WAITING_LOCK: {
                     Integer afState = result.get(CaptureResult.CONTROL_AF_STATE);
-                    if (afState == null) {
+                    //Added support for when autofocus is off
+                    if (afState == null || !AUTOFOCUS_ENABLED) {
                         captureStillPicture();
                     } else if (CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED == afState ||
                             CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED == afState) {
@@ -702,9 +706,16 @@ public class Camera2BasicFragment extends Fragment
                             // When the session is ready, we start displaying the preview.
                             mCaptureSession = cameraCaptureSession;
                             try {
-                                // Auto focus should be continuous for camera preview.
-                                mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AF_MODE,
-                                        CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
+                                if (AUTOFOCUS_ENABLED) {
+                                    // Auto focus should be continuous for camera preview.
+                                    mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AF_MODE,
+                                            CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
+                                } else {
+                                    //Auto focus is disabled
+                                    mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AF_MODE,
+                                            CaptureRequest.CONTROL_AF_MODE_OFF);
+                                }
+
                                 // Flash is automatically enabled when necessary.
                                 setAutoFlash(mPreviewRequestBuilder);
 
@@ -766,6 +777,7 @@ public class Camera2BasicFragment extends Fragment
      * Initiate a still image capture.
      */
     private void takePicture() {
+        Log.i(TAG, "User attempting to take a picture.");
         lockFocus();
     }
 
@@ -812,6 +824,7 @@ public class Camera2BasicFragment extends Fragment
         try {
             final Activity activity = getActivity();
             if (null == activity || null == mCameraDevice) {
+                Log.e(TAG, "Activity or mCameraDevice is null inside captureStillPicture()");
                 return;
             }
             // This is the CaptureRequest.Builder that we use to take a picture.
