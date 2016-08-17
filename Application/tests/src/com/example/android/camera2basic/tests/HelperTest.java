@@ -27,7 +27,7 @@ public class HelperTest {
 
     @Test
     public void createNewFileTest() {
-        File picFile = createNewFile("TestFile");
-        assertTrue(picFile.exists());
+        File picFile = createNewFile(mActivityTestRule.getActivity());
+        assertTrue(picFile != null);
     }
 }

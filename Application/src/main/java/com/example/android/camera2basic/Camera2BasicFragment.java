@@ -514,6 +514,7 @@ public class Camera2BasicFragment extends Fragment
         CameraManager manager = (CameraManager) activity.getSystemService(Context.CAMERA_SERVICE);
         try {
             for (String cameraId : manager.getCameraIdList()) {
+                Log.i(TAG, "Found a camera: cameraId: " + cameraId);
                 CameraCharacteristics characteristics
                         = manager.getCameraCharacteristics(cameraId);
 
@@ -870,18 +871,15 @@ public class Camera2BasicFragment extends Fragment
                 public void onCaptureCompleted(@NonNull CameraCaptureSession session,
                                                @NonNull CaptureRequest request,
                                                @NonNull TotalCaptureResult result) {
-                    showToast("Saved: " + mFile);
-                    Log.d(TAG, mFile.toString());
+
                     unlockFocus();
                 }
             };
 
-            //Set a new path file based on the current timestamp.
-            //We keep in milliseconds in case we take multiple photos within a one second window.
+            //mFile = createNewFile(getActivity());
             Long tsLong = System.currentTimeMillis();
-            String ts = tsLong.toString() + ".jpg";
-            //Having  ENOENT errors with the helper classes, doing this for now
-            mFile = new File(getActivity().getExternalFilesDir(null), ts);
+            String file = System.currentTimeMillis() + ".jpg";
+            mFile = new File(getActivity().getExternalFilesDir(null), file);
 
             mCaptureSession.stopRepeating();
             mCaptureSession.capture(captureBuilder.build(), CaptureCallback, null);
@@ -1007,6 +1005,8 @@ public class Camera2BasicFragment extends Fragment
                 mImage.close();
                 if (null != output) {
                     try {
+
+                        Log.d(TAG, "Picture saved successfully to : "  + mFile.toString());
                         output.close();
                     } catch (IOException e) {
                         e.printStackTrace();

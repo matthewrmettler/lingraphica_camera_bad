@@ -1,5 +1,6 @@
 package com.example.android.camera2basic;
 
+import android.app.Activity;
 import android.os.Environment;
 import android.util.Log;
 
@@ -17,17 +18,21 @@ public class Helper {
 
     /**
      * Creates a new File to be used by the picture taken, in the DCIM/bad_camera directory.
-     * @param timestamp Time since epoch, used for the filename in order to distinguish pictures.
+     * @param a Actibity used to create file
      * @return A File object where the FileOutputStream can write the .jpeg to.
      */
-    public static File createNewFile(String timestamp) {
-        File picFile = new File(getPhotoDirectory().getAbsolutePath(), timestamp);
+    public static File createNewFile(Activity a) {
+        //Set a new path file based on the current timestamp.
+        //We keep in milliseconds in case we take multiple photos within a one second window.
+        Long tsLong = System.currentTimeMillis();
+        String file = tsLong.toString() + ".jpg";
 
-        return picFile;
+        return new File(a.getExternalFilesDir(null), file);
+
     }
 
-    public static File getPhotoDirectory() {
-        File folder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES + "/bad_camera");
+    public static File getPhotoDirectory(Activity a) {
+        File folder = a.getExternalFilesDir(null);
 
         if (!folder.exists()) {
             folder.mkdirs();
@@ -37,7 +42,7 @@ public class Helper {
         return folder;
     }
 
-    public static int getPhotoCount() {
-        return getPhotoDirectory().listFiles().length;
+    public static int getPhotoCount(Activity a) {
+        return getPhotoDirectory(a).listFiles().length;
     }
 }
