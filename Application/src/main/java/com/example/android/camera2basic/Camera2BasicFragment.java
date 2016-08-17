@@ -61,9 +61,8 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.joanzapata.iconify.Iconify;
-import com.joanzapata.iconify.fonts.FontAwesomeModule;
-import com.joanzapata.iconify.fonts.MaterialCommunityModule;
-import com.joanzapata.iconify.fonts.MaterialModule;
+import com.joanzapata.iconify.fonts.TypiconsModule;
+import com.joanzapata.iconify.widget.IconButton;
 import com.joanzapata.iconify.widget.IconTextView;
 
 import java.io.File;
@@ -84,6 +83,7 @@ public class Camera2BasicFragment extends Fragment
         implements View.OnClickListener, FragmentCompat.OnRequestPermissionsResultCallback {
 
     private static boolean AUTOFOCUS_ENABLED = false;
+    private static boolean AUTOFLASH_ENABLED = true;
     /**
      * Conversion from screen rotation to JPEG orientation.
      */
@@ -286,6 +286,10 @@ public class Camera2BasicFragment extends Fragment
     private boolean mFlashSupported;
 
     /**
+     * IconTextView object for flash 'button.'
+     */
+    private IconTextView itv_flash;
+    /**
      * Orientation of the camera sensor
      */
     private int mSensorOrientation;
@@ -370,7 +374,7 @@ public class Camera2BasicFragment extends Fragment
             activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(activity, text, Toast.LENGTH_LONG).show();
+                    Toast.makeText(activity, text, Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -630,7 +634,12 @@ public class Camera2BasicFragment extends Fragment
             if (!mCameraOpenCloseLock.tryAcquire(2500, TimeUnit.MILLISECONDS)) {
                 throw new RuntimeException("Time out waiting to lock camera opening.");
             }
-            manager.openCamera(mCameraId, mStateCallback, mBackgroundHandler);
+            if (mCameraId != null) {
+                manager.openCamera(mCameraId, mStateCallback, mBackgroundHandler);
+            } else {
+                //If camera is not found, it simply shows a black screen. I think this is okay for now?
+                showToast("Camera not found.");
+            }
         } catch (CameraAccessException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -921,6 +930,10 @@ public class Camera2BasicFragment extends Fragment
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.picture: {
+                if (mCameraId == null) {
+                    showToast("No camera detected.");
+                    break;
+                }
                 takePicture();
                 break;
             }
@@ -934,16 +947,32 @@ public class Camera2BasicFragment extends Fragment
                 }
                 break;
             }
+            case R.id.flash_button: {
+                toggleFlash();
+                break;
+            }
+
         }
     }
 
     private void setAutoFlash(CaptureRequest.Builder requestBuilder) {
-        if (mFlashSupported) {
+        if (mFlashSupported && AUTOFLASH_ENABLED) {
             requestBuilder.set(CaptureRequest.CONTROL_AE_MODE,
                     CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH);
         }
     }
 
+    private void toggleFlash() {
+        if (!AUTOFLASH_ENABLED) {
+            showToast("Flash turned on");
+            itv_flash.setText("{typcn-flash}");
+        } else {
+            showToast("Flash turned off");
+            itv_flash.setText("{typcn-flash-outline}");
+        }
+
+        AUTOFLASH_ENABLED = !AUTOFLASH_ENABLED;
+    }
     /**
      * Saves a JPEG {@link Image} into the specified {@link File}.
      */
@@ -1070,12 +1099,15 @@ public class Camera2BasicFragment extends Fragment
      * @param view The view needed to setup the IconTextView.
      */
     private void iconifySetup(View view) {
-        Iconify.with(new FontAwesomeModule());
-        IconTextView itv_flash = (IconTextView) view.findViewById(R.id.flash_button);
+        Iconify.with(new TypiconsModule());
+        itv_flash = (IconTextView) view.findViewById(R.id.flash_button);
+        IconButton picture = (IconButton) view.findViewById(R.id.picture);
         //Setting value via XML does not work; so we hardcode it
         //See: https://github.com/JoanZapata/android-iconify/issues/137
 
-        itv_flash.setText("{fa-flash}");
+        itv_flash.setText("{typcn-flash}");
+        picture.setText("{typcn-camera}");
+
         itv_flash.setOnClickListener(this);
     }
 
