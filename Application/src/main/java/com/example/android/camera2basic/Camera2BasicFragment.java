@@ -879,6 +879,7 @@ public class Camera2BasicFragment extends Fragment
 
             mCaptureSession.stopRepeating();
             mCaptureSession.capture(captureBuilder.build(), CaptureCallback, null);
+            showToast("Picture taken!");
             Log.i(TAG, "mFile exists: " + mFile.exists());
         } catch (CameraAccessException e) {
             e.printStackTrace();
