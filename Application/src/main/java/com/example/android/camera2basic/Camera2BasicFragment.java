@@ -874,7 +874,6 @@ public class Camera2BasicFragment extends Fragment
             };
 
             //mFile = createNewFile(getActivity());
-            Long tsLong = System.currentTimeMillis();
             String file = System.currentTimeMillis() + ".jpg";
             mFile = new File(getActivity().getExternalFilesDir(null), file);
 
@@ -968,10 +967,10 @@ public class Camera2BasicFragment extends Fragment
 
         if (FLASH_ENABLED) {
             showToast("Flash turned on");
-            itv_flash.setText("{typcn-flash}");
+            itv_flash.setText(R.string.flash_button_on);
         } else {
             showToast("Flash turned off");
-            itv_flash.setText("{typcn-flash-outline}");
+            itv_flash.setText(R.string.flash_button_off);
         }
 
 
@@ -1109,10 +1108,9 @@ public class Camera2BasicFragment extends Fragment
         IconButton picture = (IconButton) view.findViewById(R.id.picture);
         //Setting value via XML does not work; so we hardcode it
         //See: https://github.com/JoanZapata/android-iconify/issues/137
-
         FLASH_ENABLED = true;
-        itv_flash.setText("{typcn-flash}");
-        picture.setText("{typcn-camera}");
+        itv_flash.setText(R.string.flash_button_on);
+        picture.setText(R.string.capture_button);
 
         itv_flash.setOnClickListener(this);
     }
