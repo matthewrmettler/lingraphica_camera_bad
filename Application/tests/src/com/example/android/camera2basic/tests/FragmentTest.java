@@ -38,9 +38,12 @@ public class FragmentTest {
      * Realistically, we should be checking if a new file was created that matches the photo just taken;
      * However, I'm not sure how to do that with all the various background threads and camera2 features that
      * are being used to generate the photo, create an ImageSaver object, and have that object be processed.
+     *
+     * Also, i'm waiting for 3 seconds to give time for the file to be written. I don't think thread.sleep
+     * is the correct solution, but I think it gets the job done.
      */
     @Test
-    public void cameraCaptureTest() {
+    public void cameraCaptureTest() throws InterruptedException {
         Activity a = mActivityTestRule.getActivity();
         int prevCount = getPhotoCount(a);
 
@@ -49,7 +52,8 @@ public class FragmentTest {
                         withParent(withId(R.id.control)),
                         isDisplayed()));
         iconButton.perform(click());
-
+        //Wait for the image to finish processing and for the file to be written to.
+        Thread.sleep(3000);
         int postCount = getPhotoCount(a);
         Log.i(TAG, "PrevCount = " + prevCount + "; postCount = " + postCount);
         assertTrue("Error, number of photos did not increase by 1", postCount-1 == prevCount);
@@ -111,15 +115,19 @@ public class FragmentTest {
 
     /**
      * Test to make sure the info button works.
+     *
+     * Also, i'm waiting for 2 seconds to give time for the window to open up. I don't think thread.sleep
+     * is the correct solution, but I think it gets the job done.
      */
     @Test
-    public void testInfoButton() {
+    public void testInfoButton() throws InterruptedException {
         ViewInteraction imageButton = onView(
                 allOf(withId(R.id.info), withContentDescription("Info"),
                         withParent(withId(R.id.control)),
                         isDisplayed()));
         imageButton.perform(click());
-
+        //Wait for the Dialog box to appear.
+        Thread.sleep(2000);
         ViewInteraction textView = onView(
                 allOf(withId(android.R.id.message),
                         withText("This sample demonstrates the basic use of Camera2 API. Check the source code to see how you can display camera preview and take pictures."),
