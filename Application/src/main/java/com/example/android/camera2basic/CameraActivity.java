@@ -17,19 +17,26 @@
 package com.example.android.camera2basic;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.os.Bundle;
 
 public class CameraActivity extends Activity {
 
+    private Camera2BasicFragment mFragment;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_camera);
         if (null == savedInstanceState) {
+            mFragment = Camera2BasicFragment.newInstance();
             getFragmentManager().beginTransaction()
-                    .replace(R.id.containers, Camera2BasicFragment.newInstance())
+                    .replace(R.id.containers, mFragment)
                     .commit();
         }
+    }
+
+    public Camera2BasicFragment getFragment() {
+        return mFragment;
     }
 }

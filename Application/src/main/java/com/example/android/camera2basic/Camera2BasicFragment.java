@@ -44,7 +44,6 @@ import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.annotation.NonNull;
@@ -77,13 +76,11 @@ import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-import static com.example.android.camera2basic.Helper.createNewFile;
-
 public class Camera2BasicFragment extends Fragment
         implements View.OnClickListener, FragmentCompat.OnRequestPermissionsResultCallback {
 
     private static boolean AUTOFOCUS_ENABLED = false;
-    private static boolean AUTOFLASH_ENABLED = true;
+    private static boolean FLASH_ENABLED = true;
     /**
      * Conversion from screen rotation to JPEG orientation.
      */
@@ -740,7 +737,7 @@ public class Camera2BasicFragment extends Fragment
                                 }
 
                                 // Flash is automatically enabled when necessary.
-                                setAutoFlash(mPreviewRequestBuilder);
+                                setFlash(mPreviewRequestBuilder);
 
                                 // Finally, we start displaying the camera preview.
                                 mPreviewRequest = mPreviewRequestBuilder.build();
@@ -858,7 +855,7 @@ public class Camera2BasicFragment extends Fragment
             // Use the same AE and AF modes as the preview.
             captureBuilder.set(CaptureRequest.CONTROL_AF_MODE,
                     CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
-            setAutoFlash(captureBuilder);
+            setFlash(captureBuilder);
 
             // Orientation
             int rotation = activity.getWindowManager().getDefaultDisplay().getRotation();
@@ -912,7 +909,7 @@ public class Camera2BasicFragment extends Fragment
             // Reset the auto-focus trigger
             mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER,
                     CameraMetadata.CONTROL_AF_TRIGGER_CANCEL);
-            setAutoFlash(mPreviewRequestBuilder);
+            setFlash(mPreviewRequestBuilder);
             mCaptureSession.capture(mPreviewRequestBuilder.build(), mCaptureCallback,
                     mBackgroundHandler);
             // After this, the camera will go back to the normal state of preview.
@@ -953,15 +950,23 @@ public class Camera2BasicFragment extends Fragment
         }
     }
 
-    private void setAutoFlash(CaptureRequest.Builder requestBuilder) {
-        if (mFlashSupported && AUTOFLASH_ENABLED) {
-            requestBuilder.set(CaptureRequest.CONTROL_AE_MODE,
-                    CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH);
+    private void setFlash(CaptureRequest.Builder requestBuilder) {
+        if (mFlashSupported) {
+            if (FLASH_ENABLED) {
+                requestBuilder.set(CaptureRequest.CONTROL_AE_MODE,
+                        CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH);
+            } else {
+                requestBuilder.set(CaptureRequest.CONTROL_AE_MODE,
+                        CaptureRequest.CONTROL_AE_MODE_ON);
+            }
+
         }
     }
 
     private void toggleFlash() {
-        if (!AUTOFLASH_ENABLED) {
+        FLASH_ENABLED = !FLASH_ENABLED;
+
+        if (FLASH_ENABLED) {
             showToast("Flash turned on");
             itv_flash.setText("{typcn-flash}");
         } else {
@@ -969,7 +974,7 @@ public class Camera2BasicFragment extends Fragment
             itv_flash.setText("{typcn-flash-outline}");
         }
 
-        AUTOFLASH_ENABLED = !AUTOFLASH_ENABLED;
+
     }
     /**
      * Saves a JPEG {@link Image} into the specified {@link File}.
@@ -1105,11 +1110,18 @@ public class Camera2BasicFragment extends Fragment
         //Setting value via XML does not work; so we hardcode it
         //See: https://github.com/JoanZapata/android-iconify/issues/137
 
+        FLASH_ENABLED = true;
         itv_flash.setText("{typcn-flash}");
         picture.setText("{typcn-camera}");
 
         itv_flash.setOnClickListener(this);
     }
 
-
+    /**
+     * Get the current state of the flash; used for testing.
+     * @return The current state of the flash.
+     */
+    public boolean getFlashState() {
+        return FLASH_ENABLED;
+    }
 }
