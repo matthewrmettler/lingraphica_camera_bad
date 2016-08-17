@@ -5,9 +5,11 @@ import android.content.pm.ActivityInfo;
 import android.support.test.espresso.ViewInteraction;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.LargeTest;
 import android.util.Log;
 
+import com.example.android.camera2basic.Camera2BasicFragment;
 import com.example.android.camera2basic.CameraActivity;
 import com.example.android.camera2basic.R;
 
@@ -25,12 +27,34 @@ import static org.hamcrest.Matchers.allOf;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-public class FragmentTest {
+public class FragmentTests extends ActivityInstrumentationTestCase2<CameraActivity> {
 
-    private static final String TAG = "FragmentTest";
     @Rule
     public ActivityTestRule<CameraActivity> mActivityTestRule = new ActivityTestRule<>(CameraActivity.class);
 
+    private static final String TAG = "FragmentTests";
+    private CameraActivity mTestActivity;
+    private Camera2BasicFragment mTestFragment;
+
+    public FragmentTests() {
+        super(CameraActivity.class);
+    }
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+
+        mTestActivity = getActivity();
+        mTestFragment = getActivity().getFragment();
+    }
+
+    /**
+     * Test if the test fixture has been set up correctly.
+     */
+    public void testPreconditions() {
+        assertNotNull("mTestActivity is null", mTestActivity);
+        assertNotNull("mTestFragment is null", mTestFragment);
+    }
 
     /**
      * Tests whether pushing the camera capture button increments the number of photos by 1.
@@ -44,8 +68,7 @@ public class FragmentTest {
      */
     @Test
     public void cameraCaptureTest() throws InterruptedException {
-        Activity a = mActivityTestRule.getActivity();
-        int prevCount = getPhotoCount(a);
+        int prevCount = getPhotoCount(mTestActivity);
 
         ViewInteraction iconButton = onView(
                 allOf(withId(R.id.picture), withText("\uE03B"),
@@ -54,7 +77,7 @@ public class FragmentTest {
         iconButton.perform(click());
         //Wait for the image to finish processing and for the file to be written to.
         Thread.sleep(3000);
-        int postCount = getPhotoCount(a);
+        int postCount = getPhotoCount(mTestActivity);
         Log.i(TAG, "PrevCount = " + prevCount + "; postCount = " + postCount);
         assertTrue("Error, number of photos did not increase by 1", postCount-1 == prevCount);
     }
@@ -65,12 +88,14 @@ public class FragmentTest {
      */
     @Test
     public void flashButtonTest() {
-        boolean preFlashState = mActivityTestRule.getActivity().getFragment().getFlashState();
+
+        boolean preFlashState = mTestFragment.getFlashState();
 
         ViewInteraction iconTextView = onView(
-                allOf(withId(R.id.flash_button), withText("\uE076"), isDisplayed()));
+                allOf(withId(R.id.flash_button), isDisplayed()));
         iconTextView.perform(click());
-        boolean postFlashState = mActivityTestRule.getActivity().getFragment().getFlashState();
+
+        boolean postFlashState = mTestFragment.getFlashState();
 
         assertTrue("Flash states are equal", preFlashState != postFlashState);
     }
@@ -82,9 +107,8 @@ public class FragmentTest {
      */
     @Test
     public void orientationTest() {
-        Activity a = mActivityTestRule.getActivity();
         //Make sure the app doesn't crash when we go to Landscape.
-        a.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        mTestActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
             //Check for flash button
             ViewInteraction landFlash = onView(
                     allOf(withId(R.id.flash_button), withText("\uE076"),withId(R.id.containers), isDisplayed()));
@@ -98,7 +122,7 @@ public class FragmentTest {
                     allOf(withId(R.id.flash_button), withText("\uE076"),withId(R.id.containers), isDisplayed()));
             landInfo.check(matches(isDisplayed()));
 
-        a.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        mTestActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
             //Check for flash button
             ViewInteraction portFlash = onView(
                     allOf(withId(R.id.flash_button), withText("\uE076"),withId(R.id.containers), isDisplayed()));
@@ -133,6 +157,5 @@ public class FragmentTest {
                         withText("This sample demonstrates the basic use of Camera2 API. Check the source code to see how you can display camera preview and take pictures."),
                         isDisplayed()));
         textView.check(matches(isDisplayed()));
-
     }
 }
